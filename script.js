@@ -17,6 +17,54 @@ input.addEventListener('keyup', function(event) {
   }
 });
 
+function favoriteButtonPressed(event, movie){
+
+  const favoriteState = {
+    favorited: "/Assets/favorite-icon.svg",
+    notFavorited: "/Assets/favorite-icon-filled.svg",
+  }
+
+  if(event.target.src.includes(favoriteState.notFavorited)){
+    //aqui ele será favoritado
+    event.target.src = favoriteState.favorited
+    saveToLocalStorage(movie);
+  }else{
+    //aqui ele sera desfavoritado
+    event.target.src = favoriteState.notFavorited
+    removeFromLocalStorage(movie.id)
+  }
+
+}
+
+function saveToLocalStorage(movie){
+
+  const movies = getFavoriteMovies() || [];
+  movies.push(movie);
+  const moviesJSON = JSON.stringify(movies);w
+  localStorage.setItem('favoriteMovies', moviesJSON);
+}
+
+function removeFromLocalStorage(id){
+  const movies = getFavoriteMovies() || [];
+  const findMovie = movies.find(movie => movie.id == id);
+  const newMovies = movies.filter(movie => movie.id != funMovie.id);
+  localStorage.setItem('favoriteMovies', JSON.stringify(newMovies));
+}
+
+function getFavoriteMovies(){
+  return JSON.parse(localStorage.getItem('favoriteMovies'))
+}
+
+function checkMovieIsFavorited(id) {
+  const movies = getFavoriteMovies() || []
+  return movies.find(movie => movie.id == id)
+}
+
+
+
+
+
+
 
 //requisição passando o valor do input
 async function searchMovies(){
@@ -32,6 +80,8 @@ async function searchMovies(){
 function clearMovies(){
   moviesContainer.innerHTML = '';
 }
+
+
 
 //requisicao de pesquisa com o titulo
 async function searchMovieByName(title) {
@@ -58,7 +108,7 @@ window.onload = async function () {
 
 function createMovieCard(movie) {
   const { title, poster_path, vote_average, release_date, overview } = movie;
-  const isFavorited = false;
+  const isFavorited = checkMovieIsFavorited;
 
   const year = new Date(release_date).getFullYear();
   const image = `https://image.tmdb.org/t/p/w500${poster_path}`;
@@ -110,6 +160,11 @@ function createMovieCard(movie) {
     : "/Assets/favorite-icon-filled.svg";
   favoriteIcon.alt = "Favorited Heart Icon";
   favoriteIcon.classList.add("favorite-icon");
+  favoriteIcon.addEventListener('click', (event) => favoriteButtonPressed(event, movie))
+
+  favoriteIcon.addEventListener('click',function(){
+    toggleFavorite(title);
+  })
 
   const favoriteLabel = document.createElement("p");
   favoriteLabel.classList.add("favorite-label");

@@ -204,10 +204,11 @@ body {
     padding-right: 8px;
 }
 
-.favorite-movie{
+.favorite-Movie{
     display: flex;
     flex-direction: row;
+    
 }
-.favorite-movie img{
+.favorite-Movie img{
     padding-right: 8px;
 }

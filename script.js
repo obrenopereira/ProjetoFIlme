@@ -4,7 +4,7 @@ const moviesContainer = document.querySelector('.movies-container');
 //selecionando o primeiro elemento no DOM que possui a classe CSS "movies-container" e armazenando-o na variável moviesContainer.
 
 async function getMoviesAPI(){
-  const url =  `https://api.themoviedb.org/3/movie/550?api_key=${apiKey}&language=en-US&page=1`
+  const url = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=en-US&page=1`
   const fetchResponse = await fetch(url);
   const { results } = await fetchResponse.json();
   return results;
@@ -14,6 +14,7 @@ async function getMoviesAPI(){
 
 window.onload = async function() {
   const movies = await getMoviesAPI();
+  console.log(movies);
   movies.forEach(movie => createMovieCard(movie));
 };
 
@@ -39,7 +40,7 @@ function createMovieCard(movie){
   thumbImage.src = image;
   thumbImage.alt = `${title} Poster`;
   movieThumbContainer.appendChild(thumbImage);
-  movieInfos.appendChild(movieThumbContainer);
+  cardMovie.appendChild(movieThumbContainer);
 
   const mainInfos = document.createElement('div');
   mainInfos.classList.add('main-infos');

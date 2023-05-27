@@ -3,85 +3,89 @@ import { apiKey } from "./environment/key.js";
 const moviesContainer = document.querySelector(".movies-container");
 //selecionando o primeiro elemento no DOM que possui a classe CSS "movies-container" e armazenando-o na variável moviesContainer.
 const input = document.querySelector("input");
-const searchButton = document.querySelector(".search-icon");
-
+const searchButton = document.querySelector(".search-icon")
+const checkbox = document.querySelector('input[type="checkbox"]')
 
 //adicionando evento ao clicar no icone
-searchButton.addEventListener('click', searchMovies);
+searchButton.addEventListener("click", searchMovies);
+
+//adicionando evento ao clicar no checkbox
+checkbox.addEventListener('change', checkCheckboxStatus)
+
+function checkCheckboxStatus() {
+  const isChecked = checkbox.checked;
+  if (isChecked) {
+    clearMovies()
+    const movies = getFavoriteMovies() || []
+    movies.forEach(movie => createMovieCard(movie))
+  } else {
+    clearMovies();
+    getAllPopularMovies();
+     
+  }
+}
+
 
 //adicionando evento ao input com enter
-input.addEventListener('keyup', function(event) {
-  if (event.key === 'Enter') {
+input.addEventListener("keyup", function (event) {
+  if (event.key === "Enter") {
     searchMovies();
-    return
+    return;
   }
 });
 
-function favoriteButtonPressed(event, movie){
-
+function favoriteButtonPressed(event, movie) {
   const favoriteState = {
     favorited: "/Assets/favorite-icon.svg",
     notFavorited: "/Assets/favorite-icon-filled.svg",
-  }
+  };
 
-  if(event.target.src.includes(favoriteState.notFavorited)){
+  if (event.target.src.includes(favoriteState.notFavorited)) {
     //aqui ele será favoritado
-    event.target.src = favoriteState.favorited
+    event.target.src = favoriteState.favorited;
     saveToLocalStorage(movie);
-  }else{
+  } else {
     //aqui ele sera desfavoritado
-    event.target.src = favoriteState.notFavorited
-    removeFromLocalStorage(movie.id)
+    event.target.src = favoriteState.notFavorited;
+    removeFromLocalStorage(movie.id);
   }
-
 }
 
-function saveToLocalStorage(movie){
-
+function saveToLocalStorage(movie) {
   const movies = getFavoriteMovies() || [];
   movies.push(movie);
-  const moviesJSON = JSON.stringify(movies);w
-  localStorage.setItem('favoriteMovies', moviesJSON);
+  const moviesJSON = JSON.stringify(movies);
+  localStorage.setItem("favoriteMovies", moviesJSON);
 }
 
-function removeFromLocalStorage(id){
+function removeFromLocalStorage(id) {
   const movies = getFavoriteMovies() || [];
-  const findMovie = movies.find(movie => movie.id == id);
-  const newMovies = movies.filter(movie => movie.id != funMovie.id);
+  const findMovie = movies.find((movie) => movie.id == id);
+  const newMovies = movies.filter((movie) => movie.id != findMovie.id);
   localStorage.setItem('favoriteMovies', JSON.stringify(newMovies));
 }
 
-function getFavoriteMovies(){
-  return JSON.parse(localStorage.getItem('favoriteMovies'))
+function getFavoriteMovies() {
+  return JSON.parse(localStorage.getItem('favoriteMovies'));
 }
 
 function checkMovieIsFavorited(id) {
-  const movies = getFavoriteMovies() || []
-  return movies.find(movie => movie.id == id)
+  const movies = getFavoriteMovies() || [];
+  return movies.find((movie) => movie.id == id);
 }
 
-
-
-
-
-
-
-//requisição passando o valor do input
-async function searchMovies(){
+async function searchMovies() {
   const inputValue = input.value;
-  if(inputValue != ''){
+  if (inputValue != "") {
     clearMovies();
-    const movies = await searchMovieByName(inputValue);
-    movies.forEach(movie => createMovieCard(movie));
-    
-  }
+      const movies = searchMovieByName(inputValue);
+      movies.forEach(movie => createMovieCard(movie));
+    }
 }
 
-function clearMovies(){
-  moviesContainer.innerHTML = '';
+function clearMovies() {
+  moviesContainer.innerHTML = "";
 }
-
-
 
 //requisicao de pesquisa com o titulo
 async function searchMovieByName(title) {
@@ -97,6 +101,11 @@ async function getMoviesAPI() {
   //O Fetch é uma API usada para fazer requisição HTTP antiva do JS
   const { results } = await fetchResponse.json();
   return results;
+};
+
+async function  getAllPopularMovies(){
+  const movies = await getMoviesAPI();
+  movies.forEach(movie => createMovieCard(movie));
 }
 
 // lista dde objetos movie
@@ -108,7 +117,7 @@ window.onload = async function () {
 
 function createMovieCard(movie) {
   const { title, poster_path, vote_average, release_date, overview } = movie;
-  const isFavorited = checkMovieIsFavorited;
+  const isFavorited = checkMovieIsFavorited();
 
   const year = new Date(release_date).getFullYear();
   const image = `https://image.tmdb.org/t/p/w500${poster_path}`;
@@ -160,11 +169,10 @@ function createMovieCard(movie) {
     : "/Assets/favorite-icon-filled.svg";
   favoriteIcon.alt = "Favorited Heart Icon";
   favoriteIcon.classList.add("favorite-icon");
-  favoriteIcon.addEventListener('click', (event) => favoriteButtonPressed(event, movie))
+  favoriteIcon.addEventListener("click", (event) =>
+    favoriteButtonPressed(event, movie)
+  );
 
-  favoriteIcon.addEventListener('click',function(){
-    toggleFavorite(title);
-  })
 
   const favoriteLabel = document.createElement("p");
   favoriteLabel.classList.add("favorite-label");
